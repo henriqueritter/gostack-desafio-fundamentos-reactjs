@@ -36,38 +36,8 @@ const Dashboard: React.FC = () => {
   const [balance, setBalance] = useState<Balance>({} as Balance);
 
   const history = useHistory();
-  useEffect(() => {
-    async function loadTransactions(): Promise<void> {
-      const response = await api.get('/transactions');
 
-      const formattedTransactions = response.data.transactions.map(
-        (transaction: Transaction) => ({
-          ...transaction,
-          formattedValue:
-            transaction.type === 'income'
-              ? formatValue(transaction.value)
-              : `- ${formatValue(transaction.value)}`,
-          formattedDate: new Date(transaction.created_at).toLocaleDateString(
-            'pt-BR',
-          ),
-        }),
-      );
-
-      const formattedBalance = {
-        income: formatValue(response.data.balance.income),
-        outcome: formatValue(response.data.balance.outcome),
-        total: formatValue(response.data.balance.total),
-      };
-
-      setBalance(formattedBalance);
-      setTransactions(formattedTransactions);
-    }
-
-    loadTransactions();
-  }, []);
-
-  async function handleDelete(id: string): Promise<void> {
-    await api.delete(`/transactions/${id}`);
+  async function loadTransactions(): Promise<void> {
     const response = await api.get('/transactions');
 
     const formattedTransactions = response.data.transactions.map(
@@ -91,6 +61,15 @@ const Dashboard: React.FC = () => {
 
     setBalance(formattedBalance);
     setTransactions(formattedTransactions);
+  }
+
+  useEffect(() => {
+    loadTransactions();
+  }, []);
+
+  async function handleDelete(id: string): Promise<void> {
+    await api.delete(`/transactions/${id}`);
+    loadTransactions();
   }
   return (
     <>

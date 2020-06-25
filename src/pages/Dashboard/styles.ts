@@ -95,7 +95,7 @@ export const TableContainer = styled.section`
 
     svg {
       margin-left: auto;
-      color: #a13737;
+      color: #f29999;
       width: 24px;
       height: 24px;
 
