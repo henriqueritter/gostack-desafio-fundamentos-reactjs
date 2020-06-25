@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import { FiTrash2 } from 'react-icons/fi';
+import { Link, useHistory } from 'react-router-dom';
 import income from '../../assets/income.svg';
 import outcome from '../../assets/outcome.svg';
 import total from '../../assets/total.svg';
@@ -33,6 +35,7 @@ const Dashboard: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState<Balance>({} as Balance);
 
+  const history = useHistory();
   useEffect(() => {
     async function loadTransactions(): Promise<void> {
       const response = await api.get('/transactions');
@@ -62,6 +65,33 @@ const Dashboard: React.FC = () => {
 
     loadTransactions();
   }, []);
+
+  async function handleDelete(id: string): Promise<void> {
+    await api.delete(`/transactions/${id}`);
+    const response = await api.get('/transactions');
+
+    const formattedTransactions = response.data.transactions.map(
+      (transaction: Transaction) => ({
+        ...transaction,
+        formattedValue:
+          transaction.type === 'income'
+            ? formatValue(transaction.value)
+            : `- ${formatValue(transaction.value)}`,
+        formattedDate: new Date(transaction.created_at).toLocaleDateString(
+          'pt-BR',
+        ),
+      }),
+    );
+
+    const formattedBalance = {
+      income: formatValue(response.data.balance.income),
+      outcome: formatValue(response.data.balance.outcome),
+      total: formatValue(response.data.balance.total),
+    };
+
+    setBalance(formattedBalance);
+    setTransactions(formattedTransactions);
+  }
   return (
     <>
       <Header />
@@ -116,6 +146,11 @@ const Dashboard: React.FC = () => {
                   </td>
                   <td>{transaction.category.title}</td>
                   <td>{transaction.formattedDate}</td>
+                  <td>
+                    <Link to="/">
+                      <FiTrash2 onClick={() => handleDelete(transaction.id)} />
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>

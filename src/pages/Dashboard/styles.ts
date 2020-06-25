@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { shade } from 'polished';
 
 interface CardProps {
   total?: boolean;
@@ -90,6 +91,17 @@ export const TableContainer = styled.section`
 
     td:last-child {
       border-radius: 0 8px 8px 0;
+    }
+
+    svg {
+      margin-left: auto;
+      color: #a13737;
+      width: 24px;
+      height: 24px;
+
+      &:hover {
+        color: ${shade(0.1, '#f70000')};
+      }
     }
   }
 `;
